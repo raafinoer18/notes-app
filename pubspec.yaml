@@ -1,0 +1,97 @@
+// ============================================================
+// FILE: lib/models/note.dart
+// FUNGSI: Blueprint/cetakan untuk data Catatan kita
+// ============================================================
+
+class Note {
+  // 'int?' artinya bisa null (kosong) - ID dibuat otomatis oleh database
+  final int? id;
+
+  // Judul catatan - wajib ada (tidak boleh null)
+  final String title;
+
+  // Isi/konten catatan - wajib ada
+  final String content;
+
+  // Warna catatan - disimpan sebagai angka (color value)
+  final int color;
+
+  // Kapan catatan dibuat - otomatis diisi saat membuat catatan baru
+  final DateTime createdAt;
+
+  // Kapan catatan terakhir diubah
+  final DateTime updatedAt;
+
+  // Constructor - cara membuat objek Note baru
+  // 'required' artinya WAJIB diisi saat membuat Note
+  Note({
+    this.id, // id boleh kosong (dibuat otomatis database)
+    required this.title,
+    required this.content,
+    this.color = 0xFF1E1E2E, // warna default: dark navy
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  // -------------------------------------------------------
+  // METHOD: toMap()
+  // Mengubah objek Note menjadi Map (seperti kamus/dictionary)
+  // Dipakai SAAT MENYIMPAN ke database SQLite
+  // Contoh hasil: {'title': 'Belajar Flutter', 'content': '...'}
+  // -------------------------------------------------------
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id, // jika null, SQLite akan buat ID otomatis
+      'title': title,
+      'content': content,
+      'color': color,
+      // DateTime disimpan sebagai string di database
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  // -------------------------------------------------------
+  // FACTORY METHOD: fromMap()
+  // Mengubah Map dari database menjadi objek Note
+  // Dipakai SAAT MEMBACA data dari database SQLite
+  // 'factory' artinya ini cara khusus membuat object Note
+  // -------------------------------------------------------
+  factory Note.fromMap(Map<String, dynamic> map) {
+    return Note(
+      id: map['id'], // ambil ID dari database
+      title: map['title'],
+      content: map['content'],
+      color: map['color'] ?? 0xFF1E1E2E, // jika null, pakai default
+      // Parse string tanggal kembali menjadi DateTime
+      createdAt: DateTime.parse(map['created_at']),
+      updatedAt: DateTime.parse(map['updated_at']),
+    );
+  }
+
+  // -------------------------------------------------------
+  // METHOD: copyWith()
+  // Membuat salinan Note dengan beberapa nilai yang diubah
+  // Berguna saat EDIT catatan - tidak perlu buat ulang semua
+  // Contoh: note.copyWith(title: 'Judul Baru')
+  // -------------------------------------------------------
+  Note copyWith({
+    int? id,
+    String? title,
+    String? content,
+    int? color,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Note(
+      // Jika parameter baru ada, pakai yang baru; jika tidak, pakai yang lama
+      // Operator '??' artinya: "jika kiri null, ambil kanan"
+      id: id ?? this.id,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      color: color ?? this.color,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+}
